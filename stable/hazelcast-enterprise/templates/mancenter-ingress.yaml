@@ -31,16 +31,18 @@ spec:
   {{- $serviceName := include "mancenter.fullname" . -}}
   {{- if .Values.mancenter.ingress.hosts }}
   {{- range $host := .Values.mancenter.ingress.hosts }}
-    - host: {{ $host | quote }}
-      http:
+    - http:
         paths:
-          - path: "/"
+          - path: {{ $host.path | default "/" | quote }}
             pathType: Prefix
             backend:
                 service:
                   name: {{ $serviceName }}
                   port:
                     name: http
+    {{- if and (kindIs "map" $host) (hasKey $host "name") }}
+      host: {{ $host.name | quote }}
+    {{- end }}
   {{- end }}
   {{- else }}
     - http:
