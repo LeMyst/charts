@@ -31,10 +31,10 @@ spec:
   {{- $serviceName := include "mancenter.fullname" . -}}
   {{- if .Values.mancenter.ingress.hosts }}
   {{- range $host := .Values.mancenter.ingress.hosts }}
-    - host: {{ $host | quote }}
+    - host: {{ $host.name | quote }}
       http:
         paths:
-          - path: "/"
+          - path: {{ $host.path | quote }}
             pathType: Prefix
             backend:
                 service:

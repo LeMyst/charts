@@ -334,7 +334,8 @@ mancenter:
     annotations: {}
     # className: nginx
     # hosts:
-    # - hazelcast-mancenter.cluster.domain
+    # - name: hazelcast-mancenter.cluster.domain
+    #   path: "/"
     # tls:
     # - secretName: hazelcast-ingress-tls
     #   hosts:
