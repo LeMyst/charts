@@ -378,6 +378,31 @@ mancenter:
     #   hosts:
     #   - hazelcast-mancenter.cluster.domain
 
+  # gateway configuration for mancenter
+  gateway:
+    # enabled is a flag to enable Gateway API resources
+    enabled: false
+    # className is the name of the GatewayClass
+    # className: example-gateway-class
+    # create is a flag to enable the creation of the Gateway resource
+    create: true
+    # name is the name of the Gateway resource (optional)
+    # name:
+    # listeners is the list of listeners for the Gateway resource
+    # listeners:
+    # - name: http
+    #   port: 80
+    #   protocol: HTTP
+    #   allowedRoutes:
+    #     namespaces:
+    #       from: Same
+    listeners: []
+    # host is the hostname for the HTTPRoute resource
+    # host: hazelcast-mancenter.cluster.domain
+    host:
+    # annotations is a map of annotations for the Gateway/HTTPRoute resources
+    annotations: {}
+
   # ssl is a flag to enable SSL for Management Center
   ssl: false
   # javaOpts are additional JAVA_OPTS properties for Hazelcast Management Center
