@@ -8,7 +8,6 @@ This is a repository for Hazelcast Helm Charts. For more information about insta
 See corresponding page from below for each chart for step-by-step installation:
 
 - [Hazelcast](https://docs.hazelcast.com/hazelcast/latest/kubernetes/helm-hazelcast-chart)
-- [Hazelcast Enterprise](https://docs.hazelcast.com/hazelcast/latest/kubernetes/helm-hazelcast-enterprise-chart)
 
 ## How to find us?
 
