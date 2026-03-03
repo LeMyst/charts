@@ -341,6 +341,29 @@ mancenter:
     #   hosts:
     #   - hazelcast-mancenter.cluster.domain
 
+  # gateway configuration for mancenter
+  gateway:
+    # enabled controls whether any Gateway API resources (Gateway and HTTPRoute) are created by this chart.
+    # When set to false, no Gateway or HTTPRoute resources are created at all, regardless of the value of create.
+    enabled: false
+    # create controls whether a Gateway resource is created when gateway.enabled is true.
+    # Set to 'true' for a simple HTTP/80 gateway (dev/demo).
+    # Set to 'false' to bring your own Gateway (production/TLS).
+    create: false
+    annotations: {}
+    # gatewayClassName is required if create is true
+    # gatewayClassName: example-gateway-class
+
+    # hosts and path for the HTTPRoute
+    # hosts:
+    # - name: hazelcast-mancenter.cluster.domain
+    #   path: "/"
+
+    # parentRefs are used if create is false (Bring Your Own Gateway)
+    # parentRefs:
+    # - name: example-gateway
+    #   namespace: default
+
   # ssl is a flag to enable SSL for Management Center
   ssl: false
   # javaOpts are additional JAVA_OPTS properties for Hazelcast Management Center
