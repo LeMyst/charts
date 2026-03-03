@@ -1,0 +1,90 @@
+{{- if and .Values.mancenter.enabled .Values.mancenter.gateway.enabled .Values.mancenter.gateway.hosts }}
+{{- $gatewayName := include "mancenter.fullname" . -}}
+{{- if .Values.mancenter.gateway.create }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ $gatewayName }}
+  labels:
+    app.kubernetes.io/name: {{ template "mancenter.name" . }}
+    helm.sh/chart: {{ template "hazelcast.chart" . }}
+    app.kubernetes.io/instance: "{{ .Release.Name }}"
+    app.kubernetes.io/managed-by: "{{ .Release.Service }}"
+    {{- range $key, $value := .Values.commonLabels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  {{- if or .Values.mancenter.gateway.annotations .Values.commonAnnotations }}
+  annotations:
+    {{- merge nil .Values.mancenter.gateway.annotations .Values.commonAnnotations | toYaml | nindent 4 }}
+  {{- end }}
+spec:
+  gatewayClassName: {{ required "gatewayClassName is required when creating a Gateway" .Values.mancenter.gateway.gatewayClassName }}
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: Same
+{{- end }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "mancenter.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ template "mancenter.name" . }}
+    helm.sh/chart: {{ template "hazelcast.chart" . }}
+    app.kubernetes.io/instance: "{{ .Release.Name }}"
+    app.kubernetes.io/managed-by: "{{ .Release.Service }}"
+    {{- range $key, $value := .Values.commonLabels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  {{- if or .Values.mancenter.gateway.annotations .Values.commonAnnotations }}
+  annotations:
+    {{- merge nil .Values.mancenter.gateway.annotations .Values.commonAnnotations | toYaml | nindent 4 }}
+  {{- end }}
+spec:
+  parentRefs:
+  {{- if .Values.mancenter.gateway.create }}
+    - name: {{ $gatewayName }}
+      sectionName: http
+  {{- else }}
+    {{- if not .Values.mancenter.gateway.parentRefs }}
+    {{- fail "mancenter.gateway.parentRefs is required and must be non-empty when mancenter.gateway.create is false" }}
+    {{- end }}
+    {{- toYaml .Values.mancenter.gateway.parentRefs | nindent 4 }}
+  {{- end }}
+  {{- if .Values.mancenter.gateway.hosts }}
+  hostnames:
+    {{- range .Values.mancenter.gateway.hosts }}
+      {{- if kindIs "map" . }}
+      {{- if hasKey . "name" }}
+    - {{ .name | quote }}
+      {{- else }}
+      {{- fail "mancenter.gateway.hosts entries as map must have 'name' field" }}
+      {{- end }}
+      {{- else if kindIs "string" . }}
+    - {{ . | quote }}
+      {{- else }}
+      {{- fail "mancenter.gateway.hosts entries must be string or map with 'name' field" }}
+      {{- end }}
+      {{- end }}
+  {{- end }}
+  rules:
+  {{- range .Values.mancenter.gateway.hosts }}
+  - matches:
+    - path:
+        type: PathPrefix
+        {{- if kindIs "map" . }}
+        value: {{ .path | default "/" | quote }}
+        {{- else if kindIs "string" . }}
+        value: "/"
+        {{- else }}
+        {{- fail "mancenter.gateway.hosts entries must be string or map with 'name' field" }}
+        {{- end }}
+      backendRefs:
+        - name: {{ include "mancenter.fullname" $ }}
+          port: {{ $.Values.mancenter.service.port }}
+  {{- end }}
+{{- end }}
